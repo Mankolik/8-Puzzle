@@ -1,8 +1,6 @@
 const STEP_DELAY_MS = 700;
 const DEFAULT_START = [1, 2, 3, 4, 5, 6, 7, 0, 8];
 const DEFAULT_GOAL = [1, 2, 3, 4, 5, 6, 7, 8, 0];
-const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "webp", "svg"];
-const IMAGE_NAME_PATTERNS = ["{tile}", "tile-{tile}", "tile{tile}"];
 
 const {
   boardToKey,
@@ -31,39 +29,7 @@ const state = {
   solution: [],
   playbackIndex: 0,
   timerId: null,
-  tileImages: new Map(),
-  missingTileImages: new Set(),
 };
-
-function getTileImageCandidates(tile) {
-  return IMAGE_NAME_PATTERNS.flatMap((pattern) =>
-    IMAGE_EXTENSIONS.map((extension) => `Fossils/${pattern.replace("{tile}", tile)}.${extension}`),
-  );
-}
-
-function findTileImage(tile, candidates = getTileImageCandidates(tile)) {
-  if (tile === 0 || state.tileImages.has(tile) || state.missingTileImages.has(tile)) return;
-
-  if (candidates.length === 0) {
-    state.missingTileImages.add(tile);
-    return;
-  }
-
-  const [candidate, ...remainingCandidates] = candidates;
-  const image = new Image();
-  image.onload = () => {
-    state.tileImages.set(tile, candidate);
-    render();
-  };
-  image.onerror = () => findTileImage(tile, remainingCandidates);
-  image.src = candidate;
-}
-
-function loadTileImages() {
-  for (let tile = 1; tile <= 8; tile += 1) {
-    findTileImage(tile);
-  }
-}
 
 function setStatus(message, type = "") {
   statusText.textContent = message;
@@ -99,15 +65,7 @@ function renderBoard(element, board, boardName) {
       state.selectedBoard === boardName && state.selectedIndex === index ? "selected" : "",
       isPlaying() ? "locked" : "",
     ].filter(Boolean).join(" ");
-    const imageSource = state.tileImages.get(number);
-    if (imageSource) {
-      tile.style.backgroundImage = `url("${imageSource}")`;
-      tile.style.backgroundSize = "cover";
-      tile.style.backgroundPosition = "center";
-      tile.innerHTML = `<span class="tile-number">${number}</span>`;
-    } else {
-      tile.textContent = number;
-    }
+    tile.textContent = number;
     tile.setAttribute("aria-label", `${boardName} position ${index + 1}, tile ${number}`);
     tile.addEventListener("click", () => {
       if (isPlaying()) return;
@@ -265,5 +223,4 @@ resetGoalButton.addEventListener("click", () => {
   render();
 });
 
-loadTileImages();
 render();
