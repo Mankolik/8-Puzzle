@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>8-Puzzle Solver</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <p class="eyebrow">8-puzzle solver</p>
+        <h1>Arrange your puzzle, then watch the solver step through it.</h1>
+        <p class="intro">
+          Fill the start board in the same order as the tiles on your screen. The
+          solver uses <strong>0</strong> as the empty square and moves once every
+          <strong>0.7 seconds</strong> after you press Start.
+        </p>
+        <p class="project-link">
+          Public page:
+          <a href="https://mankolik.github.io/8-Puzzle">https://mankolik.github.io/8-Puzzle</a>
+        </p>
+      </section>
+
+      <section class="workspace" aria-label="Puzzle setup and playback">
+        <article class="panel board-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Input</p>
+              <h2>Start board</h2>
+            </div>
+            <button class="ghost-button" id="shuffleStart" type="button">Shuffle</button>
+          </div>
+          <div class="board editable" id="startBoard" aria-label="Start board"></div>
+          <p class="hint">Click a square, then choose the number that belongs there.</p>
+        </article>
+
+        <article class="panel palette-panel">
+          <div class="panel-heading stacked">
+            <p class="eyebrow">Tile picker</p>
+            <h2>Numbers 0-8</h2>
+          </div>
+          <div class="palette" id="numberPalette" aria-label="Number picker"></div>
+          <p class="hint">Each number can appear once per board. 0 is the blank space.</p>
+        </article>
+
+        <article class="panel board-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Target</p>
+              <h2>Goal board</h2>
+            </div>
+            <button class="ghost-button" id="resetGoal" type="button">Reset</button>
+          </div>
+          <div class="board editable" id="goalBoard" aria-label="Goal board"></div>
+          <p class="hint">Later, these numbered squares can map to your image slices.</p>
+        </article>
+      </section>
+
+      <section class="controls panel" aria-label="Solver controls">
+        <div>
+          <p class="eyebrow">Playback</p>
+          <h2>Solution controls</h2>
+          <p id="statusText" class="status" role="status">Ready to solve.</p>
+        </div>
+        <div class="button-row">
+          <button id="startButton" type="button">Start</button>
+          <button id="pauseButton" class="secondary-button" type="button" disabled>Pause</button>
+          <button id="stepButton" class="secondary-button" type="button">Step once</button>
+          <button id="resetButton" class="secondary-button" type="button">Reset playback</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="solver.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
