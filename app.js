@@ -1,6 +1,7 @@
 const STEP_DELAY_MS = 700;
 const DEFAULT_START = [1, 2, 3, 4, 5, 6, 7, 0, 8];
 const DEFAULT_GOAL = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+const TILE_IMAGE_PATHS = Array.from({ length: 9 }, (_, number) => `Fossils/Fossil${number}.jpeg`);
 
 const {
   boardToKey,
@@ -65,8 +66,8 @@ function renderBoard(element, board, boardName) {
       state.selectedBoard === boardName && state.selectedIndex === index ? "selected" : "",
       isPlaying() ? "locked" : "",
     ].filter(Boolean).join(" ");
-    tile.textContent = number;
-    tile.setAttribute("aria-label", `${boardName} position ${index + 1}, tile ${number}`);
+    decorateTile(tile, number);
+    tile.setAttribute("aria-label", `${boardName} position ${index + 1}, fossil tile ${number}`);
     tile.addEventListener("click", () => {
       if (isPlaying()) return;
       state.selectedBoard = boardName;
@@ -77,6 +78,16 @@ function renderBoard(element, board, boardName) {
   });
 }
 
+function decorateTile(element, number) {
+  element.style.setProperty("--tile-image", `url("${TILE_IMAGE_PATHS[number]}")`);
+
+  const label = document.createElement("span");
+  label.className = "tile-number";
+  label.textContent = number;
+  label.setAttribute("aria-hidden", "true");
+  element.append(label);
+}
+
 function renderPalette() {
   const selectedBoard = getSelectedBoard();
   paletteElement.innerHTML = "";
@@ -84,8 +95,8 @@ function renderPalette() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = ["palette-button", selectedBoard.includes(number) ? "used" : ""].filter(Boolean).join(" ");
-    button.textContent = number;
-    button.setAttribute("aria-label", `Put tile ${number} in selected square`);
+    decorateTile(button, number);
+    button.setAttribute("aria-label", `Put fossil tile ${number} in selected square`);
     button.addEventListener("click", () => setSelectedTile(number));
     paletteElement.append(button);
   }

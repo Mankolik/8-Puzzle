@@ -12,9 +12,10 @@
         <p class="eyebrow">8-puzzle solver</p>
         <h1>Arrange your puzzle, then watch the solver step through it.</h1>
         <p class="intro">
-          Fill the start board in the same order as the tiles on your screen. The
-          solver uses <strong>0</strong> as the empty square and moves once every
-          <strong>0.7 seconds</strong> after you press Start.
+          Fill the start board with the matching fossil tiles. Faint number labels
+          still identify each fossil, and the solver uses <strong>0</strong> as the
+          empty square while moving once every <strong>0.7 seconds</strong> after you
+          press Start.
         </p>
       </section>
 
@@ -28,16 +29,16 @@
             <button class="ghost-button" id="shuffleStart" type="button">Shuffle</button>
           </div>
           <div class="board editable" id="startBoard" aria-label="Start board"></div>
-          <p class="hint">Click a square, then choose the number that belongs there.</p>
+          <p class="hint">Click a square, then choose the fossil tile that belongs there.</p>
         </article>
 
         <article class="panel palette-panel">
           <div class="panel-heading stacked">
             <p class="eyebrow">Tile picker</p>
-            <h2>Numbers 0-8</h2>
+            <h2>Fossils 0-8</h2>
           </div>
-          <div class="palette" id="numberPalette" aria-label="Number picker"></div>
-          <p class="hint">Each number can appear once per board. 0 is the blank space.</p>
+          <div class="palette" id="numberPalette" aria-label="Fossil tile picker"></div>
+          <p class="hint">Each fossil can appear once per board. 0 is the blank space.</p>
         </article>
 
         <article class="panel board-panel">
@@ -49,7 +50,7 @@
             <button class="ghost-button" id="resetGoal" type="button">Reset</button>
           </div>
           <div class="board editable" id="goalBoard" aria-label="Goal board"></div>
-          <p class="hint">Later, these numbered squares can map to your image slices.</p>
+          <p class="hint">The goal shows the target fossil arrangement for the solver.</p>
         </article>
       </section>
 
