@@ -5,11 +5,12 @@ A small browser app for configuring and solving an 8-puzzle with fossil photo ti
 ## Features
 
 - Editable start board: copy the fossil tile order from the puzzle on your screen.
-- Editable goal board: define the target fossil arrangement that the solver should reach.
-- Fossil tile palette that swaps duplicate tiles automatically, keeping each board valid.
+- Drag-and-drop tile swapping on the start board for quicker setup.
+- Fixed standard goal arrangement: tiles `1` through `8`, followed by blank tile `0`.
+- Fossil tile palette that swaps duplicate tiles automatically, keeping the start board valid.
 - A* search with Manhattan distance for shortest-path solving.
 - Playback that advances one move every 0.7 seconds.
-- Pause, single-step, reset, shuffle, and goal-reset controls.
+- Pause, single-step, reset, and shuffle controls.
 
 ## Run locally
 

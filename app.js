@@ -12,7 +12,6 @@ const {
 } = window.PuzzleSolver;
 
 const startBoardElement = document.querySelector("#startBoard");
-const goalBoardElement = document.querySelector("#goalBoard");
 const paletteElement = document.querySelector("#numberPalette");
 const statusText = document.querySelector("#statusText");
 const startButton = document.querySelector("#startButton");
@@ -20,13 +19,11 @@ const pauseButton = document.querySelector("#pauseButton");
 const stepButton = document.querySelector("#stepButton");
 const resetButton = document.querySelector("#resetButton");
 const shuffleStartButton = document.querySelector("#shuffleStart");
-const resetGoalButton = document.querySelector("#resetGoal");
 
 const state = {
   start: [...DEFAULT_START],
-  goal: [...DEFAULT_GOAL],
-  selectedBoard: "start",
   selectedIndex: 0,
+  draggedIndex: null,
   solution: [],
   playbackIndex: 0,
   timerId: null,
@@ -41,13 +38,8 @@ function isPlaying() {
   return state.timerId !== null;
 }
 
-function getSelectedBoard() {
-  return state.selectedBoard === "goal" ? state.goal : state.start;
-}
-
 function render() {
-  renderBoard(startBoardElement, state.start, "start");
-  renderBoard(goalBoardElement, state.goal, "goal");
+  renderBoard(startBoardElement, state.start);
   renderPalette();
   const hasSolution = state.solution.length > 0;
   pauseButton.disabled = !isPlaying();
@@ -55,25 +47,27 @@ function render() {
   resetButton.disabled = !hasSolution && boardToKey(state.start) === boardToKey(DEFAULT_START);
 }
 
-function renderBoard(element, board, boardName) {
+function renderBoard(element, board) {
   element.innerHTML = "";
   board.forEach((number, index) => {
     const tile = document.createElement("button");
     tile.type = "button";
+    tile.draggable = !isPlaying();
+    tile.dataset.index = index;
     tile.className = [
       "tile",
       number === 0 ? "empty" : "",
-      state.selectedBoard === boardName && state.selectedIndex === index ? "selected" : "",
+      state.selectedIndex === index ? "selected" : "",
+      state.draggedIndex === index ? "dragging" : "",
       isPlaying() ? "locked" : "",
     ].filter(Boolean).join(" ");
     decorateTile(tile, number);
-    tile.setAttribute("aria-label", `${boardName} position ${index + 1}, fossil tile ${number}`);
-    tile.addEventListener("click", () => {
-      if (isPlaying()) return;
-      state.selectedBoard = boardName;
-      state.selectedIndex = index;
-      render();
-    });
+    tile.setAttribute("aria-label", `Start position ${index + 1}, fossil tile ${number}`);
+    tile.addEventListener("click", () => selectStartTile(index));
+    tile.addEventListener("dragstart", (event) => handleDragStart(event, index));
+    tile.addEventListener("dragover", allowTileDrop);
+    tile.addEventListener("drop", (event) => handleTileDrop(event, index));
+    tile.addEventListener("dragend", handleDragEnd);
     element.append(tile);
   });
 }
@@ -89,31 +83,91 @@ function decorateTile(element, number) {
 }
 
 function renderPalette() {
-  const selectedBoard = getSelectedBoard();
   paletteElement.innerHTML = "";
   for (let number = 0; number <= 8; number += 1) {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = ["palette-button", selectedBoard.includes(number) ? "used" : ""].filter(Boolean).join(" ");
+    button.className = ["palette-button", state.start.includes(number) ? "used" : ""].filter(Boolean).join(" ");
     decorateTile(button, number);
-    button.setAttribute("aria-label", `Put fossil tile ${number} in selected square`);
+    button.setAttribute("aria-label", `Put fossil tile ${number} in selected start square`);
     button.addEventListener("click", () => setSelectedTile(number));
     paletteElement.append(button);
   }
 }
 
+function selectStartTile(index) {
+  if (isPlaying()) return;
+  state.selectedIndex = index;
+  render();
+}
+
 function setSelectedTile(number) {
   if (isPlaying()) return;
-  const board = getSelectedBoard();
-  const existingIndex = board.indexOf(number);
-  const currentValue = board[state.selectedIndex];
+  const existingIndex = state.start.indexOf(number);
+  const currentValue = state.start[state.selectedIndex];
 
   if (existingIndex !== -1 && existingIndex !== state.selectedIndex) {
-    board[existingIndex] = currentValue;
+    state.start[existingIndex] = currentValue;
   }
 
-  board[state.selectedIndex] = number;
+  state.start[state.selectedIndex] = number;
   clearSolution();
+  render();
+}
+
+function handleDragStart(event, index) {
+  if (isPlaying()) {
+    event.preventDefault();
+    return;
+  }
+
+  state.draggedIndex = index;
+  event.currentTarget.classList.add("dragging");
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", String(index));
+}
+
+function allowTileDrop(event) {
+  if (isPlaying()) return;
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "move";
+}
+
+function handleTileDrop(event, dropIndex) {
+  event.preventDefault();
+  if (isPlaying()) return;
+
+  const dragIndexData = event.dataTransfer.getData("text/plain");
+  const dragIndex = Number(dragIndexData);
+  const fromIndex = dragIndexData !== "" && Number.isInteger(dragIndex) ? dragIndex : state.draggedIndex;
+  swapStartTiles(fromIndex, dropIndex);
+}
+
+function handleDragEnd() {
+  if (state.draggedIndex === null) return;
+  state.draggedIndex = null;
+  render();
+}
+
+function swapStartTiles(fromIndex, toIndex) {
+  if (
+    fromIndex === null
+    || fromIndex === toIndex
+    || fromIndex < 0
+    || fromIndex >= state.start.length
+    || toIndex < 0
+    || toIndex >= state.start.length
+  ) {
+    state.draggedIndex = null;
+    render();
+    return;
+  }
+
+  [state.start[fromIndex], state.start[toIndex]] = [state.start[toIndex], state.start[fromIndex]];
+  state.selectedIndex = toIndex;
+  state.draggedIndex = null;
+  clearSolution();
+  setStatus("Start board updated. Press Start to solve the new configuration.");
   render();
 }
 
@@ -138,22 +192,21 @@ function resetPlayback() {
 function startSolving() {
   stopPlayback();
   const startError = validateBoard(state.start, "Start board");
-  const goalError = validateBoard(state.goal, "Goal board");
 
-  if (startError || goalError) {
-    setStatus(startError || goalError, "error");
+  if (startError) {
+    setStatus(startError, "error");
     render();
     return;
   }
 
-  if (!isSolvable(state.start, state.goal)) {
-    setStatus("This start board cannot reach that goal board. Swap any two non-zero tiles and try again.", "error");
+  if (!isSolvable(state.start, DEFAULT_GOAL)) {
+    setStatus("This start board cannot reach the standard goal. Swap any two non-zero tiles and try again.", "error");
     render();
     return;
   }
 
   if (state.solution.length === 0 || state.playbackIndex >= state.solution.length - 1) {
-    state.solution = solvePuzzle([...state.start], [...state.goal]);
+    state.solution = solvePuzzle([...state.start], [...DEFAULT_GOAL]);
     state.playbackIndex = 0;
   }
 
@@ -171,7 +224,7 @@ function startSolving() {
 function playNextStep() {
   if (state.playbackIndex >= state.solution.length - 1) {
     stopPlayback();
-    setStatus("Solved! The start board now matches the goal board.", "success");
+    setStatus("Solved! The start board now matches the standard goal.", "success");
     render();
     return;
   }
@@ -208,13 +261,12 @@ function stepOnce() {
 
 function shuffleStartBoard() {
   clearSolution();
-  let shuffled = [...state.goal];
+  let shuffled = [...DEFAULT_GOAL];
   for (let i = 0; i < 80; i += 1) {
     const neighbors = getNeighbors(shuffled);
     shuffled = neighbors[Math.floor(Math.random() * neighbors.length)];
   }
   state.start = shuffled;
-  state.selectedBoard = "start";
   state.selectedIndex = state.start.indexOf(0);
   setStatus("Shuffled a solvable start board.");
   render();
@@ -225,13 +277,5 @@ pauseButton.addEventListener("click", pausePlayback);
 stepButton.addEventListener("click", stepOnce);
 resetButton.addEventListener("click", resetPlayback);
 shuffleStartButton.addEventListener("click", shuffleStartBoard);
-resetGoalButton.addEventListener("click", () => {
-  clearSolution();
-  state.goal = [...DEFAULT_GOAL];
-  state.selectedBoard = "goal";
-  state.selectedIndex = state.goal.indexOf(0);
-  setStatus("Goal reset to the standard 1-8 layout.");
-  render();
-});
 
 render();
