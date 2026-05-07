@@ -94,7 +94,7 @@ h2 {
 .workspace {
   display: grid;
   gap: 18px;
-  grid-template-columns: minmax(270px, 1fr) minmax(220px, 0.75fr) minmax(270px, 1fr);
+  grid-template-columns: minmax(300px, 1.15fr) minmax(220px, 0.85fr);
 }
 
 .panel {
@@ -148,6 +148,19 @@ h2 {
   text-shadow: 0 2px 12px rgba(2, 6, 23, 0.95);
 }
 
+.tile {
+  cursor: grab;
+}
+
+.tile:active {
+  cursor: grabbing;
+}
+
+.tile.dragging {
+  opacity: 0.45;
+  transform: scale(0.96);
+}
+
 .tile::before,
 .palette-button::before {
   background: linear-gradient(180deg, rgba(2, 6, 23, 0.05), rgba(2, 6, 23, 0.42));
@@ -192,6 +205,7 @@ h2 {
 }
 
 .tile.locked {
+  cursor: not-allowed;
   pointer-events: none;
 }
 

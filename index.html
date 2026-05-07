@@ -12,10 +12,10 @@
         <p class="eyebrow">8-puzzle solver</p>
         <h1>Arrange your puzzle, then watch the solver step through it.</h1>
         <p class="intro">
-          Fill the start board with the matching fossil tiles. Faint number labels
-          still identify each fossil, and the solver uses <strong>0</strong> as the
-          empty square while moving once every <strong>0.7 seconds</strong> after you
-          press Start.
+          Fill the start board with the matching fossil tiles by selecting squares,
+          using the picker, or dragging tiles into place. The goal is always the
+          standard <strong>1-8</strong> layout with <strong>0</strong> as the empty square,
+          and playback moves once every <strong>0.7 seconds</strong>.
         </p>
       </section>
 
@@ -29,7 +29,7 @@
             <button class="ghost-button" id="shuffleStart" type="button">Shuffle</button>
           </div>
           <div class="board editable" id="startBoard" aria-label="Start board"></div>
-          <p class="hint">Click a square, then choose the fossil tile that belongs there.</p>
+          <p class="hint">Drag tiles to swap them, or click a square and choose a fossil from the picker.</p>
         </article>
 
         <article class="panel palette-panel">
@@ -38,19 +38,7 @@
             <h2>Fossils 0-8</h2>
           </div>
           <div class="palette" id="numberPalette" aria-label="Fossil tile picker"></div>
-          <p class="hint">Each fossil can appear once per board. 0 is the blank space.</p>
-        </article>
-
-        <article class="panel board-panel">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Target</p>
-              <h2>Goal board</h2>
-            </div>
-            <button class="ghost-button" id="resetGoal" type="button">Reset</button>
-          </div>
-          <div class="board editable" id="goalBoard" aria-label="Goal board"></div>
-          <p class="hint">The goal shows the target fossil arrangement for the solver.</p>
+          <p class="hint">Each fossil can appear once. 0 is the blank space; the goal is always 1-8, then 0.</p>
         </article>
       </section>
 
