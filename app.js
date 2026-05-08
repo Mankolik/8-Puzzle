@@ -1,4 +1,4 @@
-const STEP_DELAY_MS = 700;
+const STEP_DELAY_MS = 1000;
 const DEFAULT_START = [1, 2, 3, 4, 5, 6, 7, 0, 8];
 const DEFAULT_GOAL = [1, 2, 3, 4, 5, 6, 7, 8, 0];
 const TILE_IMAGE_PATHS = Array.from({ length: 9 }, (_, number) => `Fossils/Fossil${number}.jpeg`);
